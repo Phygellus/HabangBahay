@@ -34,7 +34,7 @@ def payment(request, house_id):
     house = get_object_or_404(House, id=house_id)
 
     # Prevent owners from paying themselves
-    if house.Owner.id == user.id:
+    if house.owner.id == user.id:
         messages.error(request, "You cannot rent your own house.")
         return redirect('dashboard:home')
 
@@ -64,3 +64,37 @@ def payment(request, house_id):
         'house': house,
     }
     return render(request, 'dashboard/payment.html', context)
+
+def add_house(request):
+    if 'user_id' not in request.session:
+        messages.error(request, 'Please login first.')
+        return redirect('account:login')
+    
+    user = User.objects.get(id=request.session['user_id'])
+
+    if request.method == 'POST':
+        address = request.POST.get('address')
+        price = request.POST.get('price')
+        description = request.POST.get('description')
+        gender = request.POST.get('gender')
+        rooms = request.POST.get('rooms')
+
+        if not address or not price or not description or not rooms:
+            messages.error(request, 'Please fill in all required fields.')
+            return render(request, 'dashboard/add_house.html')
+
+        # Create the house
+        House.objects.create(
+            owner=user,
+            address=address,
+            price=price,
+            description=description,
+            gender=gender,
+            rooms=rooms,
+            availability_status='Available'
+        )
+
+        messages.success(request, 'House added successfully!')
+        return redirect('dashboard:home')
+
+    return render(request, 'dashboard/add_house.html')

@@ -60,6 +60,8 @@
             <span class="username">{{ username }}</span>
         </div>
         <div class="sidebar-menu">
+            <a href="{% url 'dashboard:home' %}">Dashboard</a>
+            <a href="{% url 'dashboard:add_house' %}">Add a House</a> <!-- NEW BUTTON -->
             <a href="{% url 'prof:home' %}">Profile</a>
             <a href="{% url 'settings:home' %}">Settings</a>
             <a href="{% url 'dashboard:logout' %}">Logout</a>
