@@ -1,5 +1,3 @@
-# apps/account/views.py
-
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from django.contrib.auth.hashers import make_password, check_password
@@ -7,12 +5,15 @@ from .models import User
 
 def register(request):
     if request.method == 'POST':
+        firstname = request.POST.get('firstname')
+        lastname = request.POST.get('lastname')
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
+        gender = request.POST.get('gender')
         
         if not username or not email or not password:
-            messages.error(request, 'All fields are required.')
+            messages.error(request, 'Username, Email, and Password are required.')
             return render(request, 'account/register.html')
         
         if User.objects.filter(email=email).exists():
@@ -24,20 +25,24 @@ def register(request):
             return render(request, 'account/register.html')
         
         user = User.objects.create(
+            firstname=firstname,
+            lastname=lastname,
             username=username,
             email=email,
-            password=make_password(password)
+            password=make_password(password),
+            gender=gender
         )
         user.save()
         
         messages.success(request, 'Registration successful! You can now log in.')
-        return redirect('account:login')  # <-- FIXED
+        return redirect('account:login')
     
     return render(request, 'account/register.html')
 
+
 def login_view(request):
     if 'user_id' in request.session:
-        return redirect('dashboard:home')  # <-- FIXED (points to dashboard app)
+        return redirect('dashboard:home')
     
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -54,7 +59,7 @@ def login_view(request):
                 request.session['user_id'] = user.id
                 request.session['username'] = user.username
                 messages.success(request, f'Welcome back, {user.username}!')
-                return redirect('dashboard:home')  # <-- FIXED
+                return redirect('dashboard:home')
             else:
                 messages.error(request, 'Invalid password.')
                 return render(request, 'account/login.html')

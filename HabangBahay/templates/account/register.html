@@ -5,124 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HABANGBAHAY - Register</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #e5dbd0; font-family: Arial, sans-serif; min-height: 100vh; }
+        .container { width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+        h1 { margin-top: 40px; font-size: 60px; font-weight: bold; color: #403329; letter-spacing: 1px; }
+        .register-form { margin-top: 40px; display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .input-box, select.input-box {
+            width: 425px; height: 60px; border: 3px solid #40372f; border-radius: 35px;
+            background-color: white; text-align: center; font-size: 18px; color: #333;
+            outline: none; margin-bottom: 20px; font-family: Arial, sans-serif;
         }
-        body {
-            background-color: #e5dbd0;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-        }
-        .container {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        h1 {
-            margin-top: 58px;
-            font-size: 76px;
-            font-weight: bold;
-            color: #403329;
-            letter-spacing: 1px;
-        }
-        .register-form {
-            margin-top: 96px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        .input-box {
-            width: 425px;
-            height: 66px;
-            border: 3px solid #40372f;
-            border-radius: 35px;
-            background-color: white;
-            text-align: center;
-            font-size: 22px;
-            color: #333;
-            outline: none;
-            margin-bottom: 49px;
-        }
-        .input-box::placeholder {
-            color: #999;
-        }
-        .input-box:focus {
-            border-color: #403329;
-        }
+        select.input-box { appearance: none; -webkit-appearance: none; }
+        .input-box::placeholder { color: #999; }
+        .input-box:focus, select.input-box:focus { border-color: #403329; }
         .register-button {
-            margin-top: 30px;
-            width: 233px;
-            height: 66px;
-            border: none;
-            border-radius: 35px;
-            background-color: #403329;
-            color: white;
-            font-size: 21px;
-            font-weight: bold;
-            cursor: pointer;
+            margin-top: 15px; width: 233px; height: 60px; border: none; border-radius: 35px;
+            background-color: #403329; color: white; font-size: 21px; font-weight: bold; cursor: pointer;
         }
-        .register-button:hover {
-            background-color: #514238;
-        }
-        .messages {
-            width: 425px;
-            margin-top: 20px;
-        }
-        .alert {
-            padding: 15px 20px;
-            border-radius: 35px;
-            margin-bottom: 15px;
-            font-size: 16px;
-            text-align: center;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-        .login-link {
-            margin-top: 25px;
-            color: #403329;
-            font-size: 16px;
-        }
-        .login-link a {
-            color: #403329;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        .login-link a:hover {
-            text-decoration: underline;
-        }
+        .register-button:hover { background-color: #514238; }
+        .messages { width: 425px; margin-top: 20px; }
+        .alert { padding: 15px 20px; border-radius: 35px; margin-bottom: 15px; font-size: 16px; text-align: center; }
+        .alert-success { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .alert-error { background-color: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
+        .login-link { margin-top: 25px; color: #403329; font-size: 16px; }
+        .login-link a { color: #403329; font-weight: bold; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
         @media (max-width: 600px) {
-            h1 {
-                font-size: 45px;
-                margin-top: 50px;
-            }
-            .register-form {
-                margin-top: 70px;
-            }
-            .input-box {
-                width: 85%;
-                height: 60px;
-                font-size: 18px;
-            }
-            .register-button {
-                width: 200px;
-                height: 60px;
-            }
-            .messages {
-                width: 85%;
-            }
+            h1 { font-size: 45px; margin-top: 30px; }
+            .register-form { margin-top: 30px; }
+            .input-box, select.input-box { width: 85%; height: 55px; font-size: 16px; }
+            .register-button { width: 200px; height: 55px; }
+            .messages { width: 85%; }
         }
     </style>
 </head>
@@ -142,9 +55,19 @@
 
         <form class="register-form" method="POST" action="{% url 'account:register' %}">
             {% csrf_token %}
+            <input type="text" class="input-box" placeholder="Enter First Name" name="firstname" value="{{ request.POST.firstname }}" required>
+            <input type="text" class="input-box" placeholder="Enter Last Name" name="lastname" value="{{ request.POST.lastname }}" required>
             <input type="text" class="input-box" placeholder="Enter Username" name="username" value="{{ request.POST.username }}" required>
             <input type="email" class="input-box" placeholder="Enter Email" name="email" value="{{ request.POST.email }}" required>
             <input type="password" class="input-box" placeholder="Enter Password" name="password" required>
+            
+            <select class="input-box" name="gender" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+
             <button type="submit" class="register-button">Register</button>
             <div class="login-link">
                 Already have an account? <a href="{% url 'account:login' %}">Login</a>

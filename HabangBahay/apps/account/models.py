@@ -1,12 +1,18 @@
-# apps/account/models.py
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 
 class User(models.Model):
+    firstname = models.CharField(max_length=100, blank=True, default='')
+    lastname = models.CharField(max_length=100, blank=True, default='')
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
     address = models.CharField(max_length=255, blank=True, default='N/A')
+    gender = models.CharField(
+        max_length=10, 
+        choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')], 
+        default='Other'
+    )
 
     def __str__(self):
         return self.username
@@ -31,7 +37,9 @@ class Receiver(models.Model):
 
 class House_Renter(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # We use a string reference so Django doesn't crash if House isn't defined yet
     house = models.OneToOneField('dashboard.House', on_delete=models.CASCADE) 
-    Date_Entered = models.DateField()
-    Status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Inactive', 'Inactive')], default='Active')
+    date_entered = models.DateField()
+    status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Inactive', 'Inactive')], default='Active')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.house.address}"
