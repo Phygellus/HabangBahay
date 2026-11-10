@@ -17,15 +17,15 @@
             <h2>Rental Summary</h2>
             <div class="summary-item">
                 <span>Property:</span>
-                <strong>{{ house.Address }}</strong>
+                <strong>{{ house.address }}</strong> <!-- Changed from house.Address -->
             </div>
             <div class="summary-item">
                 <span>Owner:</span>
-                <strong>{{ house.Owner.username }}</strong>
+                <strong>{{ house.owner.username }}</strong> <!-- Changed from house.Owner -->
             </div>
             <div class="summary-item total">
                 <span>Total Price:</span>
-                <strong>₱{{ house.Price }}</strong>
+                <strong>₱{{ house.price }}</strong> <!-- Changed from house.Price -->
             </div>
         </div>
 

@@ -30,14 +30,14 @@
         {% for house in houses %}
         <div class="house-card">
             <div class="house-header">
-                <h2>{{ house.Address }}</h2>
-                <span class="price">₱{{ house.Price }}</span>
+                <h2>{{ house.address }}</h2>  <!-- Changed from house.Address -->
+                <span class="price">₱{{ house.price }}</span> <!-- Changed from house.Price -->
             </div>
             <div class="house-body">
-                <p><strong>Rooms:</strong> {{ house.Rooms }}</p>
-                <p><strong>Gender:</strong> {{ house.Gender }}</p>
-                <p><strong>Owner:</strong> {{ house.Owner.username }}</p>
-                <p class="description">{{ house.Description }}</p>
+                <p><strong>Rooms:</strong> {{ house.rooms }}</p> <!-- Changed from house.Rooms -->
+                <p><strong>Gender:</strong> {{ house.gender }}</p> <!-- Changed from house.Gender -->
+                <p><strong>Owner:</strong> {{ house.owner.username }}</p> <!-- Changed from house.Owner -->
+                <p class="description">{{ house.description }}</p> <!-- Changed from house.Description -->
             </div>
             <div class="house-footer">
                 <a href="{% url 'dashboard:payment' house.id %}" class="rent-btn">Rent / Pay</a>

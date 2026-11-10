@@ -15,8 +15,9 @@ def home(request):
         return redirect('account:login')
     
     user = User.objects.get(id=request.session['user_id'])
-    # Fetch all houses that are marked as 'Available'
-    houses = House.objects.filter(Availability_Status='Available')
+    
+    # FIX: Use lowercase availability_status
+    houses = House.objects.filter(availability_status='Available')
     
     context = {
         'username': user.username,
