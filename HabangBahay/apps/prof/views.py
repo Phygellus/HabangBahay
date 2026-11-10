@@ -20,7 +20,7 @@ def home(request):
         if not new_address:
             messages.error(request, 'Address cannot be empty.')
         else:
-            user.Address = new_address
+            user.address = new_address
             user.save()
             messages.success(request, 'Address updated successfully!')
             return redirect('prof:home')
@@ -28,6 +28,6 @@ def home(request):
     context = {
         'username': user.username,
         'email': user.email,
-        'address': user.Address,
+        'address': user.address,
     }
     return render(request, 'prof/profile.html', context)
