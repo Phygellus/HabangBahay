@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/settings/settings.css' %}">
+</head>
+<body>
+    <div class="top-bar"></div>
+
+    <div class="settings-content">
+        <h1>Settings</h1>
+
+        <div class="settings-section">
+            <h2>Account Information</h2>
+            <div class="setting-item">
+                <span class="setting-label">Username</span>
+                <span class="setting-value">{{ username }}</span>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">Email</span>
+                <span class="setting-value">{{ email }}</span>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">User ID</span>
+                <span class="setting-value">#{{ user_id }}</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h2>Session</h2>
+            <div class="setting-item">
+                <span class="setting-label">Status</span>
+                <span class="setting-value status-active">● Logged In</span>
+            </div>
+            <div class="setting-item">
+                <span class="setting-label">Logout</span>
+                <a href="{% url 'dashboard:logout' %}" class="setting-value logout-link">Log Out →</a>
+            </div>
+        </div>
+
+        <a href="{% url 'dashboard:home' %}" class="back">Back</a>
+    </div>
+</body>
+</html>

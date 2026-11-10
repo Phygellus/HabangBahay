@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/prof/profile.css' %}">
+</head>
+<body>
+    <div class="top-bar"></div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="account">
+        <div class="user-info">
+            <div class="profile-photo">
+                <div class="head"></div>
+                <div class="body"></div>
+            </div>
+            <span class="username">{{ username }}</span>
+        </div>
+
+        <div class="account-option">
+            <span class="label">Username:</span>
+            <span class="value">{{ username }}</span>
+        </div>
+        
+        <div class="account-option">
+            <span class="label">Email:</span>
+            <span class="value">{{ email }}</span>
+        </div>
+
+        <form method="POST" action="{% url 'prof:home' %}" class="address-form">
+            {% csrf_token %}
+            <div class="account-option">
+                <span class="label">Address:</span>
+                <input type="text" name="address" class="value address-input" value="{{ address }}" placeholder="Enter your address" required>
+                <button type="submit" class="save-btn">Save</button>
+            </div>
+        </form>
+
+        <a href="{% url 'dashboard:logout' %}" class="account-option">
+            <span class="label">Switch Accounts</span>
+            <span class="value">→</span>
+        </a>
+
+        <a href="{% url 'dashboard:home' %}" class="back">Back</a>
+    </div>
+</body>
+</html>

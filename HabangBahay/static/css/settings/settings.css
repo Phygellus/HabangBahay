@@ -1,0 +1,21 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background-color: #e5dbd0; font-family: Arial, sans-serif; min-height: 100vh; }
+.top-bar { width: 100%; height: 77px; background-color: #403329; }
+
+.settings-content { padding: 51px 28px; max-width: 800px; }
+.settings-content h1 { font-size: 40px; font-weight: bold; color: #403329; margin-bottom: 40px; }
+
+.settings-section { margin-bottom: 40px; background-color: rgba(255, 255, 255, 0.3); border-radius: 15px; padding: 25px 30px; border: 2px solid #403329; }
+.settings-section h2 { font-size: 24px; color: #403329; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #403329; }
+
+.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(64, 51, 41, 0.2); }
+.setting-item:last-child { border-bottom: none; }
+.setting-label { font-size: 18px; color: #403329; font-weight: bold; }
+.setting-value { font-size: 18px; color: #514238; }
+
+.status-active { color: #2e7d32; font-weight: bold; }
+.logout-link { text-decoration: none; color: #c62828; font-weight: bold; }
+.logout-link:hover { text-decoration: underline; }
+
+.back { display: inline-block; margin-top: 30px; color: #403329; font-size: 27px; text-decoration: underline; }
+.back:hover { color: #514238; }
