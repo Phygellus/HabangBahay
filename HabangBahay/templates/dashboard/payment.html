@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'css/dashboard/payment.css' %}">
 </head>
 <body>
+    <!-- Top Bar -->
     <div class="top-bar"></div>
 
     <div class="payment-container">
@@ -17,15 +18,15 @@
             <h2>Rental Summary</h2>
             <div class="summary-item">
                 <span>Property:</span>
-                <strong>{{ house.address }}</strong> <!-- Changed from house.Address -->
+                <strong>{{ house.address }}</strong>
             </div>
             <div class="summary-item">
                 <span>Owner:</span>
-                <strong>{{ house.owner.username }}</strong> <!-- Changed from house.Owner -->
+                <strong>{{ house.owner.username }}</strong>
             </div>
             <div class="summary-item total">
                 <span>Total Price:</span>
-                <strong>₱{{ house.price }}</strong> <!-- Changed from house.Price -->
+                <strong>₱{{ house.price }}</strong>
             </div>
         </div>
 
