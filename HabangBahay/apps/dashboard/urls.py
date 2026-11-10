@@ -7,4 +7,5 @@ app_name = 'dashboard'
 urlpatterns = [
     path('home/', views.home, name='home'),
     path('logout/', views.logout_view, name='logout'),
+    path('payment/<int:house_id>/', views.payment, name='payment'), # <-- New route
 ]

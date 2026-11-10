@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/payment.css' %}">
+</head>
+<body>
+    <div class="top-bar"></div>
+
+    <div class="payment-container">
+        <h1>Checkout</h1>
+        
+        <div class="summary-card">
+            <h2>Rental Summary</h2>
+            <div class="summary-item">
+                <span>Property:</span>
+                <strong>{{ house.Address }}</strong>
+            </div>
+            <div class="summary-item">
+                <span>Owner:</span>
+                <strong>{{ house.Owner.username }}</strong>
+            </div>
+            <div class="summary-item total">
+                <span>Total Price:</span>
+                <strong>₱{{ house.Price }}</strong>
+            </div>
+        </div>
+
+        <form method="POST" class="payment-form">
+            {% csrf_token %}
+            <h2>Select Payment Method</h2>
+            
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="GCash" required>
+                <span>GCash</span>
+            </label>
+            
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="Bank Transfer" required>
+                <span>Bank Transfer</span>
+            </label>
+            
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="Cash" required>
+                <span>Cash</span>
+            </label>
+
+            <div class="form-actions">
+                <a href="{% url 'dashboard:home' %}" class="cancel-btn">Cancel</a>
+                <button type="submit" class="pay-btn">Confirm Payment</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

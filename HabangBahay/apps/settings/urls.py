@@ -1,11 +1,8 @@
-# apps/dashboard/urls.py
 from django.urls import path
 from . import views
 
-app_name = 'dashboard'
+app_name = 'settings'
 
 urlpatterns = [
-    path('home/', views.home, name='home'),
-    path('logout/', views.logout_view, name='logout'),
-    path('payment/<int:house_id>/', views.payment, name='payment'), # <-- New route
+    path('', views.home, name='home'),
 ]
