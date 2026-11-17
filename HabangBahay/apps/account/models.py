@@ -1,3 +1,4 @@
+# apps/account/models.py
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 
@@ -23,15 +24,22 @@ class User(models.Model):
     def check_password(self, raw_password):
         return check_password(raw_password, self.password)
 
+    def get_or_create_sender(self):
+        sender, created = Sender.objects.get_or_create(user=self)
+        return sender
+
+    def get_or_create_receiver(self):
+        receiver, created = Receiver.objects.get_or_create(user=self)
+        return receiver
+
+
 class Sender(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
     def __str__(self):
         return f"Sender: {self.user.username}"
 
 class Receiver(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
     def __str__(self):
         return f"Receiver: {self.user.username}"
 

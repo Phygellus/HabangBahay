@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inbox - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/home.css' %}">
+    <style>
+        /* Extra CSS just for the inbox layout */
+        .inbox-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
+        .inbox-container h1 { color: #403329; font-size: 40px; margin-bottom: 30px; }
+        
+        .send-box {
+            background-color: white; border: 2px solid #403329; border-radius: 15px;
+            padding: 20px; margin-bottom: 40px;
+        }
+        .send-box h2 { color: #403329; font-size: 20px; margin-bottom: 15px; }
+        .send-box form { display: flex; flex-direction: column; gap: 10px; }
+        .send-box input, .send-box textarea {
+            padding: 12px; border: 2px solid #403329; border-radius: 10px;
+            font-family: Arial, sans-serif; font-size: 16px; outline: none;
+        }
+        .send-box textarea { min-height: 80px; resize: vertical; }
+        .send-box button {
+            align-self: flex-start; padding: 10px 30px; background-color: #403329;
+            color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;
+        }
+        
+        .message-section h2 { color: #403329; border-bottom: 2px solid #403329; padding-bottom: 10px; margin-bottom: 20px; }
+        .message-card {
+            background: white; border-left: 5px solid #403329; border-radius: 10px;
+            padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .message-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
+        .message-header strong { color: #403329; }
+        .message-body { font-size: 16px; color: #333; }
+        .empty-text { color: #888; font-style: italic; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="profile-photo" onclick="toggleSidebar()"></div>
+    </div>
+
+    {% if messages %}
+        <div class="messages" style="margin: 20px 39px;">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="inbox-container">
+        <h1>Inbox</h1>
+
+        <!-- Send Message Form -->
+        <div class="send-box">
+            <h2>Send a Message</h2>
+            <form method="POST" action="{% url 'dashboard:send_message' %}">
+                {% csrf_token %}
+                <input type="text" name="receiver_username" placeholder="Recipient Username" required>
+                <textarea name="description" placeholder="Type your message..." required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+
+        <!-- Received Messages -->
+        <div class="message-section">
+            <h2>Received Messages</h2>
+            {% for msg in received_messages %}
+                <div class="message-card">
+                    <div class="message-header">
+                        <span>From: <strong>{{ msg.sender.user.username }}</strong></span>
+                        <span>{{ msg.date_sent|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="message-body">{{ msg.description }}</div>
+                </div>
+            {% empty %}
+                <p class="empty-text">No messages received yet.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Sent Messages -->
+        <div class="message-section">
+            <h2>Sent Messages</h2>
+            {% for msg in sent_messages %}
+                <div class="message-card">
+                    <div class="message-header">
+                        <span>To: <strong>{{ msg.receiver.user.username }}</strong></span>
+                        <span>{{ msg.date_sent|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="message-body">{{ msg.description }}</div>
+                </div>
+            {% empty %}
+                <p class="empty-text">No messages sent yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-user">
+            <div class="profile-photo"></div>
+            <span class="username">{{ username }}</span>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{% url 'dashboard:home' %}">Dashboard</a>
+            <a href="{% url 'dashboard:add_house' %}">Add a House</a>
+            <a href="{% url 'dashboard:inbox' %}">Inbox</a>
+            <a href="{% url 'prof:home' %}">Profile</a>
+            <a href="{% url 'settings:home' %}">Settings</a>
+            <a href="{% url 'dashboard:logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("active");
+        }
+    </script>
+</body>
+</html>

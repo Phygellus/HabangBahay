@@ -2,7 +2,8 @@
 from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404
 from apps.account.models import User, Sender, Receiver
-from .models import House, Payment
+from .models import House, Payment, Message
+
 
 def logout_view(request):
     request.session.flush()
@@ -98,3 +99,71 @@ def add_house(request):
         return redirect('dashboard:home')
 
     return render(request, 'dashboard/add_house.html')
+
+def inbox(request):
+    if 'user_id' not in request.session:
+        messages.error(request, 'Please login first.')
+        return redirect('account:login')
+
+    user = User.objects.get(id=request.session['user_id'])
+
+    sender = user.get_or_create_sender()
+    receiver = user.get_or_create_receiver()
+
+    received_messages = Message.objects.filter(
+        receiver=receiver
+    ).select_related('sender__user').order_by('-date_sent')
+
+    sent_messages = Message.objects.filter(
+        sender=sender
+    ).select_related('receiver__user').order_by('-date_sent')
+
+    context = {
+        'user': user,
+        'username': user.username,
+        'email': user.email,
+        'sender': sender,
+        'receiver': receiver,
+        'received_messages': received_messages,
+        'sent_messages': sent_messages,
+    }
+    return render(request, 'dashboard/inbox.html', context)
+
+def send_message(request):
+    if 'user_id' not in request.session:
+        messages.error(request, 'Please login first.')
+        return redirect('account:login')
+
+    user = User.objects.get(id=request.session['user_id'])
+
+    if request.method == 'POST':
+        receiver_username = request.POST.get('receiver_username')
+        description = request.POST.get('description')
+
+        if not receiver_username or not description:
+            messages.error(request, 'All fields are required.')
+            return redirect('dashboard:inbox')
+
+        try:
+            receiver_user = User.objects.get(username=receiver_username)
+        except User.DoesNotExist:
+            messages.error(request, f'User "{receiver_username}" not found.')
+            return redirect('dashboard:inbox')
+
+        if receiver_user.id == user.id:
+            messages.error(request, 'You cannot send a message to yourself.')
+            return redirect('dashboard:inbox')
+
+        sender = user.get_or_create_sender()
+        receiver = receiver_user.get_or_create_receiver()
+
+        Message.objects.create(
+            sender=sender,
+            receiver=receiver,
+            description=description,
+        )
+
+        messages.success(request, f'Message sent to {receiver_user.username}!')
+        return redirect('dashboard:inbox')
+
+    return redirect('dashboard:inbox')
