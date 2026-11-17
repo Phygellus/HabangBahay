@@ -20,12 +20,28 @@ def home(request):
     
     houses = House.objects.filter(availability_status='Available')
     
+    query = request.GET.get('q')
+    gender_filter = request.GET.get('gender')
+    
+    if query:
+        houses = houses.filter(
+            Q(address__icontains=query) | 
+            Q(owner__username__icontains=query)
+        )
+        
+    if gender_filter and gender_filter != 'Any':
+        houses = houses.filter(
+            Q(gender=gender_filter) | Q(gender='Any')
+        )
+    # -----------------------------
+    
     context = {
         'username': user.username,
         'houses': houses,
+        'query': query,
+        'gender_filter': gender_filter
     }
     return render(request, 'dashboard/home.html', context)
-
 def payment(request, house_id):
     if 'user_id' not in request.session:
         messages.error(request, 'Please login first.')

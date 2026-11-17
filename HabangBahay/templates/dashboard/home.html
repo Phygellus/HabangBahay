@@ -39,6 +39,24 @@
             </div>
         {% endif %}
 
+        <div class="search-container">
+            <form method="GET" action="{% url 'dashboard:home' %}" class="search-form">
+                <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Search by location or owner..." class="search-input">
+                
+                <select name="gender" class="filter-select">
+                    <option value="Any" {% if gender_filter == 'Any' or not gender_filter %}selected{% endif %}>All Genders</option>
+                    <option value="Male" {% if gender_filter == 'Male' %}selected{% endif %}>Male Only</option>
+                    <option value="Female" {% if gender_filter == 'Female' %}selected{% endif %}>Female Only</option>
+                </select>
+                
+                <button type="submit" class="search-btn">Search</button>
+                
+                {% if query or gender_filter %}
+                    <a href="{% url 'dashboard:home' %}" class="clear-btn">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
         <!-- Available Houses Section -->
         <div class="section-header">
             <h2>Available Properties</h2>
