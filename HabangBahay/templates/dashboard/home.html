@@ -3,18 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HABANGBAHAY - Dashboard</title>
+    <title>Dashboard - HABANGBAHAY</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/dashboard/home.css' %}">
 </head>
 <body>
     <!-- Top Bar -->
     <div class="top-bar">
-        <a href="{% url 'dashboard:inbox' %}" style="color: white; text-decoration: none; font-size: 24px;">💬</a>
-        <div class="profile-photo" onclick="toggleSidebar()"></div>
+        <div class="top-bar-actions">
+            <a href="{% url 'dashboard:inbox' %}" class="icon-btn" title="Inbox">✉️</a>
+            <a href="{% url 'dashboard:add_house' %}" class="icon-btn" title="Add House">➕</a>
+            <div class="profile-photo" onclick="toggleSidebar()"></div>
+        </div>
     </div>
 
+    <!-- Main Content -->
     <div class="main-content">
+        
+        <!-- Hero / Welcome Banner -->
+        <div class="hero-banner">
+            <div class="hero-text">
+                <h1>Welcome back, <span class="highlight">{{ username }}</span>!</h1>
+                <p>Find your perfect home away from home. Browse available properties below.</p>
+            </div>
+            <div class="hero-actions">
+                <a href="{% url 'dashboard:add_house' %}" class="btn-primary">+ List a New House</a>
+            </div>
+        </div>
+
         {% if messages %}
             <div class="messages">
                 {% for message in messages %}
@@ -23,32 +39,47 @@
             </div>
         {% endif %}
 
-        <div class="dashboard-header">
-            <h1>Welcome, <span class="username">{{ username }}</span></h1>
-            <p>Find your next home below.</p>
+        <!-- Available Houses Section -->
+        <div class="section-header">
+            <h2>Available Properties</h2>
+            <span class="badge">{{ houses|length }} available</span>
         </div>
 
-        <!-- Houses Grid -->
         <div class="house-grid">
             {% for house in houses %}
             <div class="house-card">
-                <div class="house-header">
-                    <h2>{{ house.address }}</h2>
-                    <span class="price">₱{{ house.price }}</span>
+                <!-- Decorative Image Placeholder -->
+                <div class="house-img-placeholder">
+                    <span>🏠</span>
                 </div>
-                <div class="house-body">
-                    <p><strong>Rooms:</strong> {{ house.rooms }}</p>
-                    <p><strong>Gender:</strong> {{ house.gender }}</p>
-                    <p><strong>Owner:</strong> {{ house.owner.username }}</p>
-                    <p class="description">{{ house.description }}</p>
-                </div>
-                <div class="house-footer">
-                    <a href="{% url 'dashboard:payment' house.id %}" class="rent-btn">Rent / Pay</a>
+                
+                <div class="house-content">
+                    <div class="house-top">
+                        <h3>{{ house.address }}</h3>
+                        <span class="house-price">₱{{ house.price|floatformat:"0" }}<small>/mo</small></span>
+                    </div>
+                    
+                    <div class="house-details">
+                        <span>🛏️ {{ house.rooms }} Rooms</span>
+                        <span>👤 {{ house.gender }}</span>
+                    </div>
+                    
+                    <p class="house-desc">{{ house.description|truncatewords:15 }}</p>
+                    
+                    <div class="house-footer">
+                        <div class="owner-info">
+                            <div class="mini-avatar"></div>
+                            <span>By {{ house.owner.username }}</span>
+                        </div>
+                        <a href="{% url 'dashboard:payment' house.id %}" class="btn-rent">Rent Now</a>
+                    </div>
                 </div>
             </div>
             {% empty %}
-            <div class="no-houses">
-                <p>No houses are currently available.</p>
+            <div class="empty-state">
+                <h3>No houses available right now</h3>
+                <p>Check back later or list your own property!</p>
+                <a href="{% url 'dashboard:add_house' %}" class="btn-primary" style="margin-top: 15px; display: inline-block;">List a House</a>
             </div>
             {% endfor %}
         </div>
@@ -58,15 +89,18 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-user">
             <div class="profile-photo"></div>
-            <span class="username">{{ username }}</span>
+            <div class="user-info-text">
+                <span class="username">{{ username }}</span>
+            </div>
         </div>
         <div class="sidebar-menu">
-            <a href="{% url 'dashboard:home' %}">Dashboard</a>
-            <a href="{% url 'dashboard:add_house' %}">Add a House</a> <!-- NEW BUTTON -->
-            <a href="{% url 'dashboard:inbox' %}">Inbox</a>
-            <a href="{% url 'prof:home' %}">Profile</a>
-            <a href="{% url 'settings:home' %}">Settings</a>
-            <a href="{% url 'dashboard:logout' %}">Logout</a>
+            <a href="{% url 'dashboard:home' %}" class="active">🏠 Dashboard</a>
+            <a href="{% url 'dashboard:inbox' %}">✉️ Inbox</a>
+            <a href="{% url 'dashboard:add_house' %}">➕ Add a House</a>
+            <a href="{% url 'prof:home' %}">👤 Profile</a>
+            <a href="{% url 'settings:home' %}">⚙️ Settings</a>
+            <div class="sidebar-divider"></div>
+            <a href="{% url 'dashboard:logout' %}" class="logout">🚪 Logout</a>
         </div>
     </div>
 
