@@ -11,5 +11,6 @@ urlpatterns = [
     path('payment/<int:house_id>/', views.payment, name='payment'),
     path('add-house/', views.add_house, name='add_house'),
     path('inbox/', views.inbox, name='inbox'),
+    path('inbox/<int:active_user_id>/', views.inbox, name='inbox_with_user'), 
     path('send-message/', views.send_message, name='send_message'),
 ]

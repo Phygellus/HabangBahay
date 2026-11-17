@@ -3,121 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inbox - HABANGBAHAY</title>
+    <title>Messages - HABANGBAHAY</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/dashboard/home.css' %}">
-    <style>
-        /* Extra CSS just for the inbox layout */
-        .inbox-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .inbox-container h1 { color: #403329; font-size: 40px; margin-bottom: 30px; }
-        
-        .send-box {
-            background-color: white; border: 2px solid #403329; border-radius: 15px;
-            padding: 20px; margin-bottom: 40px;
-        }
-        .send-box h2 { color: #403329; font-size: 20px; margin-bottom: 15px; }
-        .send-box form { display: flex; flex-direction: column; gap: 10px; }
-        .send-box input, .send-box textarea {
-            padding: 12px; border: 2px solid #403329; border-radius: 10px;
-            font-family: Arial, sans-serif; font-size: 16px; outline: none;
-        }
-        .send-box textarea { min-height: 80px; resize: vertical; }
-        .send-box button {
-            align-self: flex-start; padding: 10px 30px; background-color: #403329;
-            color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;
-        }
-        
-        .message-section h2 { color: #403329; border-bottom: 2px solid #403329; padding-bottom: 10px; margin-bottom: 20px; }
-        .message-card {
-            background: white; border-left: 5px solid #403329; border-radius: 10px;
-            padding: 15px 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .message-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; color: #666; }
-        .message-header strong { color: #403329; }
-        .message-body { font-size: 16px; color: #333; }
-        .empty-text { color: #888; font-style: italic; margin-bottom: 30px; }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/dashboard/inbox.css' %}">
 </head>
 <body>
+    <!-- Top Bar -->
     <div class="top-bar">
-        <div class="profile-photo" onclick="toggleSidebar()"></div>
+        <a href="{% url 'dashboard:home' %}" class="back-btn">← Back to Dashboard</a>
     </div>
 
-    {% if messages %}
-        <div class="messages" style="margin: 20px 39px;">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    <div class="chat-app">
+        <!-- LEFT SIDEBAR: Conversations -->
+        <div class="chat-sidebar">
+            <div class="sidebar-header">
+                <h2>Messages</h2>
+            </div>
 
-    <div class="inbox-container">
-        <h1>Inbox</h1>
+            <!-- New Message Search -->
+            <div class="new-message-form">
+                <form method="POST" action="{% url 'dashboard:send_message' %}">
+                    {% csrf_token %}
+                    <input type="text" name="receiver_username" placeholder="Find a user to message..." required>
+                    <button type="submit">➔</button>
+                </form>
+            </div>
 
-        <!-- Send Message Form -->
-        <div class="send-box">
-            <h2>Send a Message</h2>
-            <form method="POST" action="{% url 'dashboard:send_message' %}">
-                {% csrf_token %}
-                <input type="text" name="receiver_username" placeholder="Recipient Username" required>
-                <textarea name="description" placeholder="Type your message..." required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
-        </div>
-
-        <!-- Received Messages -->
-        <div class="message-section">
-            <h2>Received Messages</h2>
-            {% for msg in received_messages %}
-                <div class="message-card">
-                    <div class="message-header">
-                        <span>From: <strong>{{ msg.sender.user.username }}</strong></span>
-                        <span>{{ msg.date_sent|date:"M d, Y H:i" }}</span>
+            <!-- Conversation List -->
+            <div class="conversation-list">
+                {% for convo in conversations %}
+                <a href="{% url 'dashboard:inbox_with_user' convo.user.id %}" 
+                   class="conversation-item {% if active_user_id == convo.user.id %}active{% endif %}">
+                    
+                    <div class="avatar">{{ convo.user.username|first|upper }}</div>
+                    <div class="convo-details">
+                        <div class="convo-header">
+                            <span class="name">{{ convo.user.username }}</span>
+                            <span class="time">{{ convo.last_message.date_sent|time:"H:i" }}</span>
+                        </div>
+                        <p class="snippet">{{ convo.last_message.description|truncatechars:30 }}</p>
                     </div>
-                    <div class="message-body">{{ msg.description }}</div>
+                </a>
+                {% empty %}
+                <div class="empty-sidebar">
+                    <p>No messages yet.</p>
                 </div>
-            {% empty %}
-                <p class="empty-text">No messages received yet.</p>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Sent Messages -->
-        <div class="message-section">
-            <h2>Sent Messages</h2>
-            {% for msg in sent_messages %}
-                <div class="message-card">
-                    <div class="message-header">
-                        <span>To: <strong>{{ msg.receiver.user.username }}</strong></span>
-                        <span>{{ msg.date_sent|date:"M d, Y H:i" }}</span>
-                    </div>
-                    <div class="message-body">{{ msg.description }}</div>
+        <!-- RIGHT SIDE: Active Chat Area -->
+        <div class="chat-main">
+            {% if active_conversation %}
+                
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="avatar">{{ active_conversation.user.username|first|upper }}</div>
+                    <h3>{{ active_conversation.user.username }}</h3>
                 </div>
-            {% empty %}
-                <p class="empty-text">No messages sent yet.</p>
-            {% endfor %}
+
+                <!-- Chat History -->
+                <div class="chat-history">
+                    {% for msg in active_conversation.messages %}
+                        {% if msg.sender.user.id == user.id %}
+                            <!-- My Message (Right) -->
+                            <div class="message-row sent">
+                                <div class="message-bubble">
+                                    {{ msg.description }}
+                                    <span class="message-time">{{ msg.date_sent|time:"H:i" }}</span>
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Their Message (Left) -->
+                            <div class="message-row received">
+                                <div class="message-bubble">
+                                    {{ msg.description }}
+                                    <span class="message-time">{{ msg.date_sent|time:"H:i" }}</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input-area">
+                    <form method="POST" action="{% url 'dashboard:send_message' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="active_user_id" value="{{ active_user_id }}">
+                        <input type="text" name="description" placeholder="Type a message..." required autocomplete="off">
+                        <button type="submit">Send</button>
+                    </form>
+                </div>
+
+            {% else %}
+                <!-- No Chat Selected -->
+                <div class="empty-chat">
+                    <div class="icon">💬</div>
+                    <h2>Your Messages</h2>
+                    <p>Select a conversation from the left, or search for a user to start a new chat.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
-
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-user">
-            <div class="profile-photo"></div>
-            <span class="username">{{ username }}</span>
-        </div>
-        <div class="sidebar-menu">
-            <a href="{% url 'dashboard:home' %}">Dashboard</a>
-            <a href="{% url 'dashboard:add_house' %}">Add a House</a>
-            <a href="{% url 'dashboard:inbox' %}">Inbox</a>
-            <a href="{% url 'prof:home' %}">Profile</a>
-            <a href="{% url 'settings:home' %}">Settings</a>
-            <a href="{% url 'dashboard:logout' %}">Logout</a>
-        </div>
-    </div>
-
-    <script>
-        function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("active");
-        }
-    </script>
 </body>
 </html>
