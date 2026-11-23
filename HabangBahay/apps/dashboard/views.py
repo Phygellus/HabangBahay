@@ -1,8 +1,10 @@
 # apps/dashboard/views.py
+import datetime
+from urllib import request
 from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404
-from django.db.models import Q
-from apps.account.models import User, Sender, Receiver
+from django.db.models import Q, Count
+from apps.account.models import User, Sender, Receiver, House_Renter
 from .models import House, Payment, Message
 
 
@@ -61,16 +63,21 @@ def payment(request, house_id):
             messages.error(request, "Please select a payment method.")
         else:
             sender, _ = Sender.objects.get_or_create(user=user)
-            receiver, _ = Receiver.objects.get_or_create(user=house.Owner)
+            receiver, _ = Receiver.objects.get_or_create(user=house.owner)
             
             Payment.objects.create(
                 sender=sender,
                 receiver=receiver,
-                Price=house,
-                Transaction_Method=method
+                house=house,
+                transaction_method=method
             )
-            
-            messages.success(request, f"Successfully paid for {house.Address}!")
+            House_Renter.objects.create(
+                user=user,
+                house=House.objects.latest('id'),
+                date_entered=datetime.date.today(),
+                status='Active'
+            )
+            messages.success(request, f"Successfully paid for {house.address}!")
             return redirect('dashboard:home')
 
     context = {
@@ -197,3 +204,111 @@ def send_message(request):
         return redirect('dashboard:inbox_with_user', active_user_id=active_user_id)
 
     return redirect('dashboard:inbox')
+
+def owner_houses(request):
+    if 'user_id' not in request.session:
+        messages.error(request, 'Please login first.')
+        return redirect('account:login')
+
+    # --- Safe session lookup: user may have been deleted ---
+    try:
+        current_user = User.objects.get(id=request.session['user_id'])
+    except User.DoesNotExist:
+        request.session.flush()
+        messages.error(request, 'User not found. Please login again.')
+        return redirect('account:login')
+
+    owners = (
+        User.objects
+        .filter(houses__isnull=False)          # INNER JOIN
+        .prefetch_related('houses')
+        .annotate(house_count=Count('houses'))  # GROUP BY
+        .order_by('username')
+    )
+
+    # --- Build the list; gracefully handle owners whose houses list is empty ---
+    owner_list = []
+    for owner in owners:
+        houses = list(owner.houses.all().order_by('address'))
+        # Defensive guard: skip owners with no houses (shouldn't happen with
+        # the INNER JOIN, but keeps the template 100% safe if data is odd)
+        if not houses:
+            continue
+        owner_list.append({
+            'username': owner.username or 'Unknown',
+            'email': owner.email or '',
+            'house_count': len(houses),
+            'houses': houses,
+        })
+
+    # --- Explicit empty flag for the template ---
+    context = {
+        'owners': owner_list,
+        'has_owners': bool(owner_list),
+        'username': current_user.username,
+    }
+    print(owners.query)
+    return render(request, 'dashboard/owner_houses.html', context)
+
+def renter_houses(request):
+    if 'user_id' not in request.session:
+        messages.error(request, 'Please login first.')
+        return redirect('account:login')
+
+    try:
+        user = User.objects.get(id=request.session['user_id'])
+    except User.DoesNotExist:
+        request.session.flush()
+        messages.error(request, 'User not found. Please login again.')
+        return redirect('account:login')
+
+    # --- Read the filter from the query string ---
+    #   ?filter=all        -> every renter-house pair (global JOIN report)
+    #   ?filter=mine       -> rentals where I am the renter
+    #   ?filter=my_house   -> rentals on houses I own
+    filter_mode = request.GET.get('filter', 'all')
+
+    # Base queryset: select_related keeps the INNER JOINs in the SQL
+    rentals = (
+        House_Renter.objects
+        .select_related('user', 'house', 'house__owner')  # JOIN User + House + owner User
+    )
+
+    if filter_mode == 'mine':
+        # WHERE on the joined user table -> still a JOIN
+        rentals = rentals.filter(user=user)
+    elif filter_mode == 'my_house':
+        # WHERE on the joined house table -> forces the House JOIN
+        rentals = rentals.filter(house__owner=user)
+    # 'all' -> no extra filter, returns every joined pair
+
+    rentals = rentals.order_by('user__username', '-date_entered')
+
+    # Group by renter
+    renters = {}
+    for rental in rentals:
+        uid = rental.user.id
+        if uid not in renters:
+            renters[uid] = {
+                'username': rental.user.username,
+                'email': rental.user.email,
+                'is_me': rental.user.id == user.id,
+                'rentals': [],
+            }
+        renters[uid]['rentals'].append({
+            'address': rental.house.address,
+            'price': rental.house.price,
+            'date_entered': rental.date_entered,
+            'status': rental.status,
+            'house_owner': rental.house.owner.username,
+            'is_my_house': rental.house.owner_id == user.id,
+        })
+
+    context = {
+        'username': user.username,
+        'renters': renters.values(),
+        'filter_mode': filter_mode,
+        'has_renters': bool(renters),
+    }
+    print(rentals.query)
+    return render(request, 'dashboard/renter_houses.html', context)

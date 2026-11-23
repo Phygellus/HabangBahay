@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Owner Houses - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/reports.css' %}">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="{% url 'dashboard:home' %}" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <div class="report-container">
+        <h1>House Owners & Their Properties</h1>
+        <p class="subtitle">Django ORM JOIN: User ⋈ House</p>
+
+        {% for owner in owners %}
+        <div class="report-card">
+            <div class="report-header">
+                <div class="avatar">{{ owner.username|first|upper }}</div>
+                <div>
+                    <h2>{{ owner.username }}</h2>
+                    <span class="muted">{{ owner.email }}</span>
+                </div>
+                <span class="badge">{{ owner.house_count }} house{{ owner.house_count|pluralize }}</span>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Price</th>
+                        <th>Gender</th>
+                        <th>Rooms</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for house in owner.houses %}
+                    <tr>
+                        <td>{{ house.address }}</td>
+                        <td>₱{{ house.price|floatformat:"0" }}</td>
+                        <td>{{ house.gender }}</td>
+                        <td>{{ house.rooms }}</td>
+                        <td>
+                            <span class="pill {% if house.availability_status == 'Available' %}pill-green{% else %}pill-red{% endif %}">
+                                {{ house.availability_status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <h3>No owners with houses yet</h3>
+            <p>List a house to see it appear here.</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

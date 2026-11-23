@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Renter Houses - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/reports.css' %}">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="{% url 'dashboard:home' %}" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <div class="report-container">
+        <h1>Renters & Their Rented Houses</h1>
+        <p class="subtitle">Django ORM JOIN: User ⋈ House_Renter ⋈ House</p>
+
+        <!-- Filter tabs -->
+        <div class="filter-tabs">
+            <a href="?filter=all"
+               class="filter-tab {% if filter_mode == 'all' %}active{% endif %}">
+                🌐 All Renters
+            </a>
+            <a href="?filter=mine"
+               class="filter-tab {% if filter_mode == 'mine' %}active{% endif %}">
+                🙋 Rentals I Made
+            </a>
+            <a href="?filter=my_house"
+               class="filter-tab {% if filter_mode == 'my_house' %}active{% endif %}">
+                🏠 Rentals of My Houses
+            </a>
+        </div>
+
+        <!-- Contextual hint -->
+        <p class="filter-hint">
+            {% if filter_mode == 'all' %}
+                Showing every renter–house pair in the system.
+            {% elif filter_mode == 'mine' %}
+                Showing only rentals where <strong>you</strong> are the renter.
+            {% elif filter_mode == 'my_house' %}
+                Showing only rentals on houses <strong>you</strong> own.
+            {% endif %}
+        </p>
+
+        {% if has_renters %}
+            {% for renter in renters %}
+            <div class="report-card">
+                <div class="report-header">
+                    <div class="avatar">{{ renter.username|first|upper }}</div>
+                    <div>
+                        <h2>
+                            {{ renter.username }}
+                            {% if renter.is_me %}<span class="you-tag">You</span>{% endif %}
+                        </h2>
+                        <span class="muted">{{ renter.email }}</span>
+                    </div>
+                    <span class="badge">
+                        {{ renter.rentals|length }} rental{{ renter.rentals|length|pluralize }}
+                    </span>
+                </div>
+
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>House</th>
+                            <th>Owner</th>
+                            <th>Price</th>
+                            <th>Date Entered</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rental in renter.rentals %}
+                        <tr>
+                            <td>
+                                {{ rental.address }}
+                                {% if rental.is_my_house %}
+                                    <span class="you-tag">Your property</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ rental.house_owner }}</td>
+                            <td>₱{{ rental.price|floatformat:"0" }}</td>
+                            <td>{{ rental.date_entered }}</td>
+                            <td>
+                                <span class="pill {% if rental.status == 'Active' %}pill-green{% else %}pill-red{% endif %}">
+                                    {{ rental.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                {% if filter_mode == 'mine' %}
+                    <h3>You haven't rented any houses yet</h3>
+                    <p>Browse available properties and rent one to see it here.</p>
+                    <a href="{% url 'dashboard:home' %}"
+                       class="btn-primary" style="margin-top:15px; display:inline-block;">
+                        Browse Houses
+                    </a>
+                {% elif filter_mode == 'my_house' %}
+                    <h3>Nobody has rented your houses yet</h3>
+                    <p>Once someone rents a property you own, it will appear here.</p>
+                    <a href="{% url 'dashboard:add_house' %}"
+                       class="btn-primary" style="margin-top:15px; display:inline-block;">
+                        List a House
+                    </a>
+                {% else %}
+                    <h3>No renters yet</h3>
+                    <p>Once someone rents a house, they'll show up here.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

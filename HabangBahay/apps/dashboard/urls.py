@@ -13,4 +13,6 @@ urlpatterns = [
     path('inbox/', views.inbox, name='inbox'),
     path('inbox/<int:active_user_id>/', views.inbox, name='inbox_with_user'), 
     path('send-message/', views.send_message, name='send_message'),
+    path('owner-houses/', views.owner_houses, name='owner_houses'),
+    path('renter-houses/', views.renter_houses, name='renter_houses'),
 ]
