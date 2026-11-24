@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transaction History - HABANGBAHAY</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/reports.css' %}">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="{% url 'dashboard:home' %}" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <div class="report-container">
+        <h1>Transaction History</h1>
+        <p class="subtitle">
+            ORM Subquery: payments for houses priced above average (₱{{ avg_price|floatformat:"0" }})
+        </p>
+
+        <div class="report-card">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>House</th>
+                        <th>Price</th>
+                        <th>Sender</th>
+                        <th>Receiver</th>
+                        <th>Method</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for txn in transactions %}
+                    <tr>
+                        <td>#{{ txn.id }}</td>
+                        <td>{{ txn.date|date:"M d, Y H:i" }}</td>
+                        <td>{{ txn.house_address }}</td>
+                        <td>₱{{ txn.price|floatformat:"0" }}</td>
+                        <td>{{ txn.sender }}</td>
+                        <td>{{ txn.receiver }}</td>
+                        <td><span class="pill pill-green">{{ txn.method }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty-row">No transactions match the subquery yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -44,8 +44,8 @@ class Receiver(models.Model):
         return f"Receiver: {self.user.username}"
 
 class House_Renter(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    house = models.OneToOneField('dashboard.House', on_delete=models.CASCADE) 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    house = models.ForeignKey('dashboard.House', on_delete=models.CASCADE)
     date_entered = models.DateField()
     status = models.CharField(max_length=20, choices=[('Active', 'Active'), ('Inactive', 'Inactive')], default='Active')
 

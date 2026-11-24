@@ -23,12 +23,10 @@ class Message(models.Model):
     def __str__(self):
         return f"From {self.sender.user.username} to {self.receiver.user.username}"
 
+# apps/dashboard/models.py
 class Payment(models.Model):
-    sender = models.OneToOneField('account.Sender', on_delete=models.CASCADE)
-    receiver = models.OneToOneField('account.Receiver', on_delete=models.CASCADE)
+    sender = models.ForeignKey('account.Sender', on_delete=models.CASCADE)
+    receiver = models.ForeignKey('account.Receiver', on_delete=models.CASCADE)
     house = models.ForeignKey('dashboard.House', on_delete=models.CASCADE)
     transaction_date = models.DateTimeField(auto_now_add=True)
     transaction_method = models.CharField(max_length=50)
-
-    def __str__(self):
-        return f"Payment #{self.id} - {self.house.address}"

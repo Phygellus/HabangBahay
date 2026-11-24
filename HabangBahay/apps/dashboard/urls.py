@@ -15,4 +15,5 @@ urlpatterns = [
     path('send-message/', views.send_message, name='send_message'),
     path('owner-houses/', views.owner_houses, name='owner_houses'),
     path('renter-houses/', views.renter_houses, name='renter_houses'),
+    path('transactions/', views.transaction_history, name='transaction_history'),
 ]

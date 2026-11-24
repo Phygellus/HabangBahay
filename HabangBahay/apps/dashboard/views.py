@@ -1,9 +1,8 @@
 # apps/dashboard/views.py
 import datetime
-from urllib import request
 from django.contrib import messages
 from django.shortcuts import redirect, render, get_object_or_404
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Subquery, Avg
 from apps.account.models import User, Sender, Receiver, House_Renter
 from .models import House, Payment, Message
 
@@ -73,7 +72,7 @@ def payment(request, house_id):
             )
             House_Renter.objects.create(
                 user=user,
-                house=House.objects.latest('id'),
+                house=house,
                 date_entered=datetime.date.today(),
                 status='Active'
             )
@@ -312,3 +311,60 @@ def renter_houses(request):
     }
     print(rentals.query)
     return render(request, 'dashboard/renter_houses.html', context)
+
+def transaction_history(request):
+    if 'user_id' not in request.session:
+        messages.error(request, 'Please login first.')
+        return redirect('account:login')
+
+    try:
+        user = User.objects.get(id=request.session['user_id'])
+    except User.DoesNotExist:
+        request.session.flush()
+        messages.error(request, 'User not found. Please login again.')
+        return redirect('account:login')
+
+    # 1. Get the IDs of houses THIS user is renting
+    my_rented_house_ids = House_Renter.objects.filter(user=user).values_list('house_id', flat=True)
+    
+    # 2. Calculate the average price (if no houses, default to 0)
+    my_avg_price = (
+        House.objects
+        .filter(id__in=my_rented_house_ids)
+        .aggregate(avg=Avg('price'))['avg']
+    ) or 0
+
+    # 3. Main query: 
+    # We filter by current user (sender OR receiver). 
+    # Notice we removed 'house_id__in' here so you can see ALL your payments, 
+    # but we use 'house__price__gte' to filter by the average.
+    payments = (
+        Payment.objects
+        .filter(
+            Q(sender__user=user) | Q(receiver__user=user),
+            house__price__gte=my_avg_price
+        )
+        .select_related('house', 'sender__user', 'receiver__user')
+        .order_by('-transaction_date')
+    )
+
+    transactions = [
+        {
+            'id': p.id,
+            'date': p.transaction_date,
+            'method': p.transaction_method,
+            'house_address': p.house.address,
+            'price': p.house.price,
+            'sender': p.sender.user.username,
+            'receiver': p.receiver.user.username,
+        }
+        for p in payments
+    ]
+
+    print(payments.query)  # Debug: print the SQL query to console
+
+    return render(request, 'dashboard/transaction_history.html', {
+        'username': user.username,
+        'transactions': transactions,
+        'avg_price': my_avg_price,
+    })
