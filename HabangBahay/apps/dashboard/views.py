@@ -317,32 +317,22 @@ def transaction_history(request):
         messages.error(request, 'Please login first.')
         return redirect('account:login')
 
-    try:
-        user = User.objects.get(id=request.session['user_id'])
-    except User.DoesNotExist:
-        request.session.flush()
-        messages.error(request, 'User not found. Please login again.')
-        return redirect('account:login')
+    user = User.objects.get(id=request.session['user_id'])
 
-    # 1. Get the IDs of houses THIS user is renting
-    my_rented_house_ids = House_Renter.objects.filter(user=user).values_list('house_id', flat=True)
-    
-    # 2. Calculate the average price (if no houses, default to 0)
-    my_avg_price = (
+    my_related_houses = (
         House.objects
-        .filter(id__in=my_rented_house_ids)
-        .aggregate(avg=Avg('price'))['avg']
-    ) or 0
+        .filter(
+            Q(house_renter__user=user) |  # Houses I rent
+            Q(owner=user)                 # Houses I own
+        )
+        .values('id')
+    )
 
-    # 3. Main query: 
-    # We filter by current user (sender OR receiver). 
-    # Notice we removed 'house_id__in' here so you can see ALL your payments, 
-    # but we use 'house__price__gte' to filter by the average.
     payments = (
         Payment.objects
         .filter(
-            Q(sender__user=user) | Q(receiver__user=user),
-            house__price__gte=my_avg_price
+            # This translates to: WHERE house_id IN (SELECT id FROM...)
+            house_id__in=Subquery(my_related_houses) 
         )
         .select_related('house', 'sender__user', 'receiver__user')
         .order_by('-transaction_date')
@@ -361,10 +351,9 @@ def transaction_history(request):
         for p in payments
     ]
 
-    print(payments.query)  # Debug: print the SQL query to console
+    print(payments.query)  # Debug: print the SQL query to the console
 
     return render(request, 'dashboard/transaction_history.html', {
         'username': user.username,
         'transactions': transactions,
-        'avg_price': my_avg_price,
     })
