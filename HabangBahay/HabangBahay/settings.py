@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.dashboard.apps.DashboardConfig',
     'apps.prof.apps.ProfConfig',
     'apps.settings.apps.SettingsConfig',
+    'map_location',
 ]
 
 MIDDLEWARE = [
@@ -126,6 +127,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/

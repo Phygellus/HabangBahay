@@ -1,4 +1,5 @@
 from django.db import models
+from map_location.fields import LocationField
 
 class House(models.Model):
     owner = models.ForeignKey('account.User', on_delete=models.CASCADE, related_name='houses')
@@ -9,6 +10,14 @@ class House(models.Model):
     rooms = models.IntegerField()
     availability = models.IntegerField(default=1)
     availability_status = models.CharField(max_length=20, choices=[('Available', 'Available'), ('Full', 'Full')], default='Available')
+    location = LocationField(
+        'Location', 
+        blank=True, 
+        null=True,
+        options={
+            'center': [14.5995, 120.9842], # Default center point (e.g., Manila)
+        }
+    )
 
     def __str__(self):
         return f"{self.address} - {self.owner.username}"
