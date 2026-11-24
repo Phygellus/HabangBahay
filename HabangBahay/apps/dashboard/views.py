@@ -98,6 +98,10 @@ def add_house(request):
         description = request.POST.get('description')
         gender = request.POST.get('gender')
         rooms = request.POST.get('rooms')
+        
+        # GRAB THE NEW GPS FIELDS
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
 
         if not address or not price or not description or not rooms:
             messages.error(request, 'Please fill in all required fields.')
@@ -110,7 +114,10 @@ def add_house(request):
             description=description,
             gender=gender,
             rooms=rooms,
-            availability_status='Available'
+            availability_status='Available',
+            # SAVE THE GPS FIELDS
+            latitude=latitude if latitude else None,
+            longitude=longitude if longitude else None
         )
 
         messages.success(request, 'House added successfully!')

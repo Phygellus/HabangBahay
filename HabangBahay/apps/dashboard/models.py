@@ -15,7 +15,8 @@ class House(models.Model):
         blank=True, 
         null=True,
         options={
-            'center': [14.5995, 120.9842], # Default center point (e.g., Manila)
+            'center': [10.294, 123.902], # Default center point (e.g., Manila)
+            'locate':True,
         }
     )
 
