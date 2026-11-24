@@ -6,7 +6,6 @@ from django.db.models import Q, Count, Subquery, Avg
 from apps.account.models import User, Sender, Receiver, House_Renter
 from .models import House, Payment, Message
 
-
 def logout_view(request):
     request.session.flush()
     messages.success(request, 'You have been logged out successfully.')
@@ -99,7 +98,7 @@ def add_house(request):
         gender = request.POST.get('gender')
         rooms = request.POST.get('rooms')
         
-        # GRAB THE NEW GPS FIELDS
+        # 1. Get the coordinates from the hidden inputs
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
 
@@ -107,6 +106,14 @@ def add_house(request):
             messages.error(request, 'Please fill in all required fields.')
             return render(request, 'dashboard/add_house.html')
 
+        # 2. Format the location for django-map-location
+        # If the user didn't click the map or use GPS, set it to None
+        location_data = None
+        if latitude and longitude:
+            # The package expects a string formatted as "lat,lng"
+            location_data = f"{latitude},{longitude}"
+
+        # 3. Save to database
         House.objects.create(
             owner=user,
             address=address,
@@ -115,16 +122,13 @@ def add_house(request):
             gender=gender,
             rooms=rooms,
             availability_status='Available',
-            # SAVE THE GPS FIELDS
-            latitude=latitude if latitude else None,
-            longitude=longitude if longitude else None
+            location=location_data  # Pass the formatted string here
         )
 
         messages.success(request, 'House added successfully!')
         return redirect('dashboard:home')
 
     return render(request, 'dashboard/add_house.html')
-
 def inbox(request, active_user_id=None):
     if 'user_id' not in request.session:
         messages.error(request, 'Please login first.')

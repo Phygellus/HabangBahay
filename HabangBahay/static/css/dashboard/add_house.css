@@ -88,7 +88,7 @@ body { background-color: #e5dbd0; font-family: Arial, sans-serif; min-height: 10
 .alert-success { background-color: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
 .alert-error { background-color: #f8d7da; color: #721c24; border: 2px solid #f5c6cb; }
 
-/* GPS Button next to Address */
+/* --- Layout for GPS Button and Address Input --- */
 .address-group {
     display: flex;
     gap: 10px;
@@ -96,8 +96,8 @@ body { background-color: #e5dbd0; font-family: Arial, sans-serif; min-height: 10
 }
 
 .address-group input {
-    margin-bottom: 0; /* Remove default margin since parent has it */
-    flex-grow: 1;
+    margin-bottom: 0; /* Remove default margin */
+    flex-grow: 1;     /* Make input take up available space */
 }
 
 .gps-btn {
@@ -107,6 +107,7 @@ body { background-color: #e5dbd0; font-family: Arial, sans-serif; min-height: 10
     border-radius: 10px;
     padding: 0 15px;
     font-weight: bold;
+    font-size: 14px;
     cursor: pointer;
     transition: background 0.2s;
     white-space: nowrap;
@@ -116,12 +117,12 @@ body { background-color: #e5dbd0; font-family: Arial, sans-serif; min-height: 10
     background-color: #e0b48a;
 }
 
-/* Map Container */
+/* --- The Map Container --- */
 .map-container {
-    height: 250px;
+    height: 300px; /* CRITICAL: Map needs a fixed height to render */
     width: 100%;
     border-radius: 10px;
     border: 2px solid #403329;
     margin-bottom: 20px;
-    z-index: 1; /* Ensures map doesn't overlap form dropdowns */
+    z-index: 1; /* Keeps map from overlapping dropdowns */
 }
